@@ -3,6 +3,7 @@ import { alert } from '../support/components/alert.component';
 import { authFlow } from '../support/flows/auth.flow';
 import { loginPage } from '../support/pages/login.page';
 import { otpPage } from '../support/pages/otp.page';
+import { realUser } from '../support/actions/real-user';
 import { eachCase, testCase } from '../support/cases';
 import { TAG, tags } from '../support/tags';
 
@@ -74,6 +75,23 @@ describe('Login', { tags: tags(TAG.feature.login) }, () => {
         otpPage.error().should('contain.text', 'Invalid OTP');   // Assert
       },
       [TAG.mod.security],
+    );
+  });
+
+  // Real email: you read the OTP from your inbox and type it. Run with: npm run test:manual
+  describe('Manual OTP (a human types the code)', { tags: tags(TAG.mod.manual, TAG.mod.security) }, () => {
+    eachCase(
+      [
+        { id: 'LOG-M01', title: 'a real User signs in with the emailed OTP and lands on the user dashboard', role: 'USER' as const, landing: '/user/dashboard' },
+        { id: 'LOG-M02', title: 'a real Admin signs in with the emailed OTP and lands on the admin dashboard', role: 'ADMIN' as const, landing: '/admin/dashboard' },
+      ],
+      ({ role, landing }) => {
+        realUser(role).then((user) => {                          // Arrange: real account from .env
+          authFlow.loginWithManualOtp(user);                     // Act: you type the OTP
+          cy.location('pathname').should('eq', landing);         // Assert
+          cy.getCookie('jwt_token').should('exist');
+        });
+      },
     );
   });
 });

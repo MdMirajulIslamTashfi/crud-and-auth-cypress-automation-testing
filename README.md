@@ -5,6 +5,11 @@
 2. Start the JWT server (:8081), then the app normally (no test profile, no app changes).
    Optional: point the app at a separate test database so tests don't touch dev data.
 
+## Real-inbox OTP tests (@manual)
+1. `cp .env.example .env` and fill in a real USER and a real ADMIN account (must already exist in the app).
+2. `npm run test:manual` - Chrome opens, logs in, stops on the OTP page; type the emailed code and click Verify.
+   The test continues by itself when the dashboard opens. Normal runs skip @manual tests.
+
 ## Notes
 - Login shortcut (`cy.loginAs`) gets a token from the JWT server and sets the `jwt_token` cookie - no OTP.
 - OTP is random and emailed; tests only go as far as the OTP page (LOG-H01/H02) and a wrong code (LOG-N03).

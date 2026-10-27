@@ -10,8 +10,19 @@ export const authFlow = {
   },
 
   /** Login form with valid credentials -> the app sends an OTP and opens the OTP page. */
-  loginUntilOtpPage(user: TestUser) {
+  loginUntilOtpPage(user: Pick<TestUser, 'email' | 'password'>) {
     loginPage.visit().fillCredentials(user.email, user.password).submit();
     otpPage.shouldBeOpen();
+  },
+
+  /**
+   * Real inbox: submit the credentials, then WAIT while a human reads the emailed OTP, types it in the
+   * browser and clicks Verify. Continues by itself once the role dashboard opens. The code expires after 60s.
+   */
+  loginWithManualOtp(user: Pick<TestUser, 'email' | 'password'>, waitMs = 120_000) {
+    loginPage.visit().fillCredentials(user.email, user.password).submit();
+    otpPage.shouldBeOpen();
+    cy.log('**>>> Check your email, type the OTP in the browser and click Verify (code expires in 60s; use Resend Code if needed)**');
+    cy.location('pathname', { timeout: waitMs }).should('match', /^\/(user|admin)\/dashboard$/);
   },
 };

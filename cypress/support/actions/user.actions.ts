@@ -1,5 +1,5 @@
-import { TestUser } from "../builders/user.builder";
-import { JWT_SERVER_URL } from "../config";
+import { TestUser } from '../builders/user.builder';
+import { JWT_SERVER_URL } from '../config';
 
 // App Actions = fast shortcuts that skip the UI. Use them for ARRANGE, never for the thing under test.
 
@@ -7,8 +7,8 @@ import { JWT_SERVER_URL } from "../config";
 export function seedUser(u: TestUser) {
   return cy
     .request({
-      method: "POST",
-      url: "/register",
+      method: 'POST',
+      url: '/register',
       form: true,
       followRedirect: false,
       body: {
@@ -25,7 +25,7 @@ export function seedUser(u: TestUser) {
     .then((res) => {
       // success = redirect to /login?registered=true; failure re-renders the form with 200
       expect(res.status, `seeding ${u.email}`).to.eq(302);
-      expect(res.redirectedToUrl).to.contain("registered=true");
+      expect(res.redirectedToUrl).to.contain('registered=true');
     });
 }
 
@@ -35,24 +35,16 @@ export function seedUser(u: TestUser) {
  */
 export function loginAs(u: TestUser) {
   cy.session(
-    ["jwt", u.email],
+    ['jwt', u.email],
     () => {
       cy.request<{ token: string }>({
-        method: "POST",
+        method: 'POST',
         url: `${JWT_SERVER_URL}/api/jwt/generate`,
         body: { email: u.email, password: u.password, role: u.role },
       }).then(({ body }) => {
-        cy.setCookie("jwt_token", body.token, {
-          domain: "localhost",
-          path: "/",
-          httpOnly: true,
-        });
+        cy.setCookie('jwt_token', body.token, { domain: 'localhost', path: '/', httpOnly: true });
       });
     },
-    {
-      validate: () => {
-        cy.getCookie("jwt_token").should("exist");
-      },
-    },
+    { validate: () => { cy.getCookie('jwt_token').should('exist'); } },
   );
 }

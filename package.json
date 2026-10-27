@@ -7,6 +7,7 @@
     "test:smoke": "cypress run --browser chrome --expose grepTags=@smoke",
     "test:happy": "cypress run --browser chrome --expose grepTags=@happy",
     "test:negative": "cypress run --browser chrome --expose grepTags=@negative",
+    "test:manual": "cypress run --headed --browser chrome --expose grepTags=@manual",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
