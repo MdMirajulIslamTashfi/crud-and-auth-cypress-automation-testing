@@ -2,11 +2,11 @@
   "name": "crud-auth-e2e",
   "private": true,
   "scripts": {
-    "cy:open": "cypress open",
-    "test": "cypress run",
-    "test:smoke": "cypress run --expose grepTags=@smoke",
-    "test:happy": "cypress run --expose grepTags=@happy",
-    "test:negative": "cypress run --expose grepTags=@negative",
+    "cy:open": "cypress open --browser chrome",
+    "test": "cypress run --browser chrome",
+    "test:smoke": "cypress run --browser chrome --expose grepTags=@smoke",
+    "test:happy": "cypress run --browser chrome --expose grepTags=@happy",
+    "test:negative": "cypress run --browser chrome --expose grepTags=@negative",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
