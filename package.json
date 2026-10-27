@@ -1,0 +1,20 @@
+{
+  "name": "crud-auth-e2e",
+  "private": true,
+  "scripts": {
+    "mail:up": "docker compose -f infra/docker-compose.yml up -d",
+    "mail:down": "docker compose -f infra/docker-compose.yml down",
+    "cy:open": "cypress open",
+    "test": "cypress run",
+    "test:smoke": "cypress run --expose grepTags=@smoke",
+    "test:happy": "cypress run --expose grepTags=@happy",
+    "test:negative": "cypress run --expose grepTags=@negative",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cypress/grep": "^7.0.0",
+    "@types/node": "^22.0.0",
+    "cypress": "16.1.1",
+    "typescript": "^5.6.0"
+  }
+}
