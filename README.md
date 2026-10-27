@@ -2,10 +2,12 @@
 
 ## One-time setup
 1. `npm install`                      (cypress 16.1.1, @cypress/grep, typescript)
-2. `npm run mail:up`                  (Mailpit: SMTP :1025, UI/API :8025 — needs Docker)
-3. Copy `infra/application-test.properties` into the app's `src/main/resources/`
-4. Start the JWT server (:8081), then the app:
-   `./gradlew bootRun --args='--spring.profiles.active=test'`
+2. Start the JWT server (:8081), then the app normally (no test profile, no app changes).
+   Optional: point the app at a separate test database so tests don't touch dev data.
+
+## Notes
+- Login shortcut (`cy.loginAs`) gets a token from the JWT server and sets the `jwt_token` cookie - no OTP.
+- OTP is random and emailed; tests only go as far as the OTP page (LOG-H01/H02) and a wrong code (LOG-N03).
 
 ## Run
 - `npm run cy:open`                                        interactive

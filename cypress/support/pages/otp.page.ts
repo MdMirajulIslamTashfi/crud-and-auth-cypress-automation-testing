@@ -1,4 +1,8 @@
 class OtpPage {
+  shouldBeOpen() {
+    cy.url({ timeout: 10000 }).should('include', '/otp');
+    return this;
+  }
   enterCode(code: string) {
     // 6 single-digit boxes; the page's own JS joins them into the hidden field
     cy.get('.otp-box')
