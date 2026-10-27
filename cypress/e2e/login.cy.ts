@@ -1,8 +1,10 @@
 import { UserBuilder } from '../support/builders/user.builder';
 import { alert } from '../support/components/alert.component';
 import { authFlow } from '../support/flows/auth.flow';
+import { adminDashboardPage } from '../support/pages/admin-dashboard.page';
 import { loginPage } from '../support/pages/login.page';
 import { otpPage } from '../support/pages/otp.page';
+import { userDashboardPage } from '../support/pages/user-dashboard.page';
 import { realUser } from '../support/actions/real-user';
 import { eachCase, testCase } from '../support/cases';
 import { TAG, tags } from '../support/tags';
@@ -36,15 +38,15 @@ describe('Login', { tags: tags(TAG.feature.login) }, () => {
     // Signed-in access (session created through the JWT server, OTP skipped)
     eachCase(
       [
-        { id: 'LOG-H03', title: 'a signed-in User can open the user dashboard', role: 'USER' as const, page: '/user/dashboard' },
-        { id: 'LOG-H04', title: 'a signed-in Admin can open the admin dashboard', role: 'ADMIN' as const, page: '/admin/dashboard' },
+        { id: 'LOG-H03', title: 'a signed-in User sees the user dashboard', role: 'USER' as const, page: '/user/dashboard', assertLoaded: (email: string) => userDashboardPage.shouldBeLoadedFor(email) },
+        { id: 'LOG-H04', title: 'a signed-in Admin sees the admin dashboard', role: 'ADMIN' as const, page: '/admin/dashboard', assertLoaded: (email: string) => adminDashboardPage.shouldBeLoadedFor(email) },
       ],
-      ({ role, page }) => {
+      ({ role, page, assertLoaded }) => {
         const user = new UserBuilder().with({ role }).build();   // Arrange
         cy.seedUser(user);
         cy.loginAs(user);
         cy.visit(page);                                          // Act
-        cy.location('pathname').should('eq', page);              // Assert
+        assertLoaded(user.email);                                // Assert
       },
     );
   });
@@ -80,18 +82,20 @@ describe('Login', { tags: tags(TAG.feature.login) }, () => {
 
   // Real email: you read the OTP from your inbox and type it. Run with: npm run test:manual
   describe('Manual OTP (a human types the code)', { tags: tags(TAG.mod.manual, TAG.mod.security) }, () => {
-    eachCase(
-      [
-        { id: 'LOG-M01', title: 'a real User signs in with the emailed OTP and lands on the user dashboard', role: 'USER' as const, landing: '/user/dashboard' },
-        { id: 'LOG-M02', title: 'a real Admin signs in with the emailed OTP and lands on the admin dashboard', role: 'ADMIN' as const, landing: '/admin/dashboard' },
-      ],
-      ({ role, landing }) => {
-        realUser(role).then((user) => {                          // Arrange: real account from .env
-          authFlow.loginWithManualOtp(user);                     // Act: you type the OTP
-          cy.location('pathname').should('eq', landing);         // Assert
-          cy.getCookie('jwt_token').should('exist');
-        });
-      },
-    );
+    testCase('LOG-M01', 'a real User signs in with the emailed OTP and the user dashboard loads', () => {
+      realUser('USER').then((user) => {                          // Arrange: real account from .env
+        authFlow.loginWithManualOtp(user);                       // Act: you type the OTP
+        userDashboardPage.shouldBeLoadedFor(user.email);         // Assert: page fully loaded
+        cy.getCookie('jwt_token').should('exist');
+      });
+    });
+
+    testCase('LOG-M02', 'a real Admin signs in with the emailed OTP and the admin dashboard loads', () => {
+      realUser('ADMIN').then((user) => {
+        authFlow.loginWithManualOtp(user);
+        adminDashboardPage.shouldBeLoadedFor(user.email);
+        cy.getCookie('jwt_token').should('exist');
+      });
+    });
   });
 });
